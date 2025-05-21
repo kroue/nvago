@@ -15,7 +15,7 @@ export default function Login() {
   const handleLogin = async () => {
     setError('');
     try {
-      const res = await fetch('http://192.168.1.43:8000/api/token/', {
+      const res = await fetch('http://192.168.1.23:8000/api/token/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -83,7 +83,7 @@ export default function Login() {
           )}
         </TouchableOpacity>
         <Text style={styles.rememberText}>Remember me</Text>
-        <TouchableOpacity style={styles.forgotContainer}>
+        <TouchableOpacity style={styles.forgotContainer} onPress={() => navigation.navigate('ForgotPassword')}>
           <Text style={styles.forgotText}>Forgot Password</Text>
         </TouchableOpacity>
       </View>

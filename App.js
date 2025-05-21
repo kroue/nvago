@@ -8,7 +8,7 @@ import Home from './screens/Home';
 import Verification from './screens/Verification';
 import { FontAwesome, Feather } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // If you want to persist user info
-
+import ForgotPassword from './screens/ForgotPassword';
 const Stack = createStackNavigator();
 const { width } = Dimensions.get('window');
 const SIDEBAR_WIDTH = Math.min(width * 0.8, 320);
@@ -174,6 +174,7 @@ export default function App() {
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="Home" component={HomeWithHeader} />
         <Stack.Screen name="Verification" component={Verification} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -80,3 +80,59 @@ class CustomObtainAuthToken(ObtainAuthToken):
             'first_name': user.first_name,
             'last_name': user.last_name,
         })
+
+class SendResetOTPView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'error': 'Email is required.'}, status=400)
+        try:
+            user = User.objects.get(email=email)
+            otp = str(random.randint(100000, 999999))
+            user.profile.otp = otp
+            user.profile.save()
+            send_mail(
+                'Password Reset OTP',
+                f'Your OTP for password reset is {otp}',
+                'noreply@nvago.com',
+                [email],
+                fail_silently=False,
+            )
+            return Response({'message': 'OTP sent to your email.'}, status=200)
+        except User.DoesNotExist:
+            return Response({'error': 'User with this email does not exist.'}, status=404)
+
+class VerifyResetOTPView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        otp = request.data.get('otp')
+        if not email or not otp:
+            return Response({'error': 'Email and OTP are required.'}, status=400)
+        try:
+            user = User.objects.get(email=email)
+            if user.profile.otp == otp:
+                return Response({'message': 'OTP verified. You can now reset your password.'}, status=200)
+            else:
+                return Response({'error': 'Invalid OTP.'}, status=400)
+        except User.DoesNotExist:
+            return Response({'error': 'User with this email does not exist.'}, status=404)
+
+class ResetPasswordView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        otp = request.data.get('otp')
+        new_password = request.data.get('new_password')
+        if not email or not otp or not new_password:
+            return Response({'error': 'Email, OTP, and new password are required.'}, status=400)
+        try:
+            user = User.objects.get(email=email)
+            if user.profile.otp == otp:
+                user.set_password(new_password)
+                user.profile.otp = ''  # Clear the OTP after successful reset
+                user.profile.save()
+                user.save()
+                return Response({'message': 'Password reset successfully.'}, status=200)
+            else:
+                return Response({'error': 'Invalid OTP.'}, status=400)
+        except User.DoesNotExist:
+            return Response({'error': 'User with this email does not exist.'}, status=404)
